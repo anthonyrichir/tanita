@@ -39,7 +39,7 @@ puts "Will try to read #{path_to_utils_file}"
 utils_file = File.read(path_to_utils_file) if File.file?(path_to_utils_file)
 utils = utils_file ? JSON.parse(utils_file) : {}
 
-start_date = utils['lastDate'] ? Date.strptime(utils['lastDate'], date_format) + 1 : Date.new(2017, 1, 1)
+start_date = utils['lastDate'] ? Date.strptime(utils['lastDate'], date_format) + 1 : Date.new(2017, 6, 22)
 puts "Setting start date to #{start_date.strftime(date_format)}"
 
 offset = utils['offset'] ? utils['offset'] + 1 : 2
@@ -71,7 +71,7 @@ session = GoogleDrive::Session.from_config('config.json')
 
 puts "Fetching spreadsheet!"
 
-ws = session.spreadsheet_by_key("10pYlNIOaeD0-oElZ5mwlHfAMOi8WtuTEeymathBOf-I").worksheets[0]
+ws = session.spreadsheet_by_key("1fk-9UBT6-980I9Lbk2FsOx0LpOVUo9JzvfdmPfwQF3o").worksheets[0]
 
 puts "Uploading data!"
 
