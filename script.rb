@@ -1,8 +1,9 @@
 require 'google_drive'
 require 'json'
 
-path_to_data_file = '/Volumes/NO NAME/TANITA/GRAPHV1/DATA/DATA1.CSV'
-path_to_utils_file = 'utils.json'
+abort("Missing utils file path. Usage: ruby script.rb <path-to-utils-file>") unless ARGV[0]
+
+path_to_utils_file = ARGV[0]
 date_format = "%d/%m/%Y"
 
 keywords = {
@@ -37,19 +38,33 @@ desired = %w(date time weight bmi fat muscle visceral meta_age water)
 puts "Will try to read #{path_to_utils_file}"
 
 utils_file = File.read(path_to_utils_file) if File.file?(path_to_utils_file)
-utils = utils_file ? JSON.parse(utils_file) : {}
 
-start_date = utils['lastDate'] ? Date.strptime(utils['lastDate'], date_format) + 1 : Date.new(2017, 6, 22)
+abort("Missing utils file at #{path_to_utils_file}") unless utils_file
+
+utils = JSON.parse(utils_file)
+
+abort("Missing startDate element in utils file!") unless utils['startDate']
+abort("Missing dataFile element in utils file!") unless utils['dataFile']
+abort("Missing spreadsheetKey element in utils file!") unless utils['spreadsheetKey']
+
+start_date = Date.strptime(utils['lastDate'], date_format) + 1 if utils['lastDate']
+start_date ||= Date.strptime(utils['startDate'], date_format)
+
 puts "Setting start date to #{start_date.strftime(date_format)}"
 
+# default is 2 because of the header
 offset = utils['offset'] ? utils['offset'] + 1 : 2
 puts "Setting offset to #{offset}"
 
-puts "Will read from #{path_to_data_file}"
+puts "Will read from #{utils["dataFile"]}"
 
 data = []
 
-File.open(path_to_data_file, "r") do |f|
+data_file = File.read(utils["dataFile"]) if File.file?(utils["dataFile"])
+
+abort("Missing data file at #{utils["dataFile"]}") unless data_file
+
+File.open(utils["dataFile"], "r") do |f|
   f.each_line do |line|
     originals = Hash[*line.split(",")]
     prettified = {}
@@ -71,7 +86,7 @@ session = GoogleDrive::Session.from_config('config.json')
 
 puts "Fetching spreadsheet!"
 
-ws = session.spreadsheet_by_key("1fk-9UBT6-980I9Lbk2FsOx0LpOVUo9JzvfdmPfwQF3o").worksheets[0]
+ws = session.spreadsheet_by_key(utils["spreadsheetKey"]).worksheets[0]
 
 puts "Uploading data!"
 
