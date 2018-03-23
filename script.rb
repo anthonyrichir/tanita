@@ -1,9 +1,11 @@
 require 'google_drive'
 require 'json'
 
-abort("Missing utils file path. Usage: ruby script.rb <path-to-utils-file>") unless ARGV[0]
+abort("Missing utils file path. Usage: ruby script.rb <path-to-utils-file> <path-to-data-file>") unless ARGV[0]
+abort("Missing data file path. Usage: ruby script.rb <path-to-utils-file> <path-to-data-file>") unless ARGV[1]
 
 path_to_utils_file = ARGV[0]
+path_to_data_file = ARGV[1]
 date_format = "%d/%m/%Y"
 
 keywords = {
@@ -44,7 +46,6 @@ abort("Missing utils file at #{path_to_utils_file}") unless utils_file
 utils = JSON.parse(utils_file)
 
 abort("Missing startDate element in utils file!") unless utils['startDate']
-abort("Missing dataFile element in utils file!") unless utils['dataFile']
 abort("Missing spreadsheetKey element in utils file!") unless utils['spreadsheetKey']
 
 start_date = Date.strptime(utils['lastDate'], date_format) + 1 if utils['lastDate']
@@ -56,15 +57,15 @@ puts "Setting start date to #{start_date.strftime(date_format)}"
 offset = utils['offset'] ? utils['offset'] + 1 : 2
 puts "Setting offset to #{offset}"
 
-puts "Will read from #{utils["dataFile"]}"
+puts "Will try to read #{path_to_data_file}"
 
 data = []
 
-data_file = File.read(utils["dataFile"]) if File.file?(utils["dataFile"])
+data_file = File.read(path_to_data_file) if File.file?(path_to_data_file)
 
-abort("Missing data file at #{utils["dataFile"]}") unless data_file
+abort("Missing data file at #{path_to_data_file}") unless data_file
 
-File.open(utils["dataFile"], "r") do |f|
+File.open(path_to_data_file, "r") do |f|
   f.each_line do |line|
     originals = Hash[*line.split(",")]
     prettified = {}
