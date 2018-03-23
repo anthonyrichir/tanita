@@ -1,4 +1,7 @@
 {
-  "client_id": "xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
-  "client_secret": "xxxxxxxxxxxxxxxxxxxxxxxx"
+  "startDate": "XX/XX/XXXX",
+  "spreadsheetKey": "XXXXXXXX",
+  "dataFile": "XXXXXXXX",
+  "lastDate": "XXXXXXXX",
+  "offset": "XXXXXXXX",
 }
